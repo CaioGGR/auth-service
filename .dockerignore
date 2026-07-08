@@ -12,15 +12,3 @@ Dockerfile
 Dockerfile.db
 .dockerignore
 
-# Ignorar binários locais compilados (para garantir compilação limpa dentro do Docker)
-auth-service
-auth-service.exe
-*.exe
-*.test
-*.out
-
-# Ignorar IDEs e temporários
-.vscode/
-.idea/
-Thumbs.db
-.DS_Store

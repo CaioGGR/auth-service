@@ -1,24 +1,14 @@
-# Binários Compilados do Go
-auth-service
-auth-service.exe
-*.exe
-*.test
-*.out
+# Ignorar controle de versão
+.git
+.gitignore
 
-# Arquivos de Ambiente (Segurança)
+# Ignorar segredos e variáveis de ambiente locais
 .env
-.env.local
-.env.*.local
+.env.*
 
-# IDEs e Ferramentas
-.vscode/
-.idea/
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.swp
+# Ignorar configurações do Docker Compose e Dockerfiles
+docker-compose.yml
+Dockerfile
+Dockerfile.db
+.dockerignore
 
-# Sistemas Operacionais
-Thumbs.db
-.DS_Store
