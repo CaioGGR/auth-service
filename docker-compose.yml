@@ -1,0 +1,93 @@
+services:
+
+  # ----------------------------------------------------------------------------
+  # SERVIÇO DE BANCO DE DADOS (POSTGRESQL)
+  # ----------------------------------------------------------------------------
+  postgres-auth:
+    # Compila uma imagem personalizada do Postgres com o script de inicialização
+    # embutido, evitando falhas de montagem de arquivos/pastas no Windows/Google Drive
+    build:
+      context: .
+      dockerfile: Dockerfile.db
+    container_name: postgres-auth
+    
+    # Define as variáveis de ambiente necessárias para inicialização do Postgres (lidas do .env)
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      
+    # Mapeia a porta do PostgreSQL para a porta padrão interna
+    ports:
+      - "5432:5432"
+      
+    # Mapeamentos de volumes físicos/virtuais para o container
+    volumes:
+      # Volume nomeado para garantir a persistência dos dados do banco entre reinicializações
+      - postgres_data:/var/lib/postgresql/data
+      
+    # Monitora a saúde do banco de dados para garantir que ele está aceitando conexões de forma segura
+    healthcheck:
+      # Utiliza as próprias variáveis de ambiente injetadas no container para executar o teste
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s                  # Intervalo entre as verificações (5 segundos)
+      timeout: 5s                   # Tempo máximo tolerado de resposta do teste
+      retries: 5                    # Número máximo de falhas consecutivas antes de declarar o container como "unhealthy"
+      
+    # Conecta o container à rede isolada do microsserviço
+    networks:
+      - auth-service-network
+
+  # ----------------------------------------------------------------------------
+  # SERVIÇO DA APLICAÇÃO (GO AUTH-SERVICE)
+  # ----------------------------------------------------------------------------
+  auth-service:
+    # Instancia o processo de compilação da imagem Docker baseando-se no arquivo local
+    build:
+      context: .                    # Contexto do build (diretório atual contendo o Dockerfile)
+      dockerfile: Dockerfile        # Especificação do arquivo Dockerfile a ser utilizado
+    container_name: auth-service
+    
+    # Mapeia a porta do servidor web Go usando a variável do .env
+    ports:
+      - "${PORT}:${PORT}"
+      
+    # Estabelece dependência estrita de inicialização
+    depends_on:
+      postgres-auth:
+        condition: service_healthy  # O Go só inicializa quando o banco de dados passar com sucesso no healthcheck
+        
+    # Variáveis de ambiente injetadas no container da aplicação Go (todas lidas do .env)
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+      MASTER_KEY: ${MASTER_KEY}
+      PORT: ${PORT}
+      
+      # Variáveis adicionais de conexão fornecidas para fins de compatibilidade e referência
+      DB_HOST: ${DB_HOST}
+      DB_USER: ${POSTGRES_USER}
+      DB_PASSWORD: ${POSTGRES_PASSWORD}
+      DB_NAME: ${POSTGRES_DB}
+      
+    # Conecta o container à mesma rede do banco de dados para permitir resolução de DNS interno
+    networks:
+      - auth-service-network
+
+# ------------------------------------------------------------------------------
+# CONFIGURAÇÃO DE VOLUMES PERSISTENTES
+# ------------------------------------------------------------------------------
+volumes:
+  # Garante que os registros salvos no PostgreSQL não sejam deletados quando o container for destruído
+  postgres_data:
+
+# ------------------------------------------------------------------------------
+# CONFIGURAÇÃO DE REDES ISOLADAS
+# ------------------------------------------------------------------------------
+networks:
+  # Rede bridge dedicada para garantir comunicação segura e isolamento de rede entre os serviços
+  auth-service-network:
+    driver: bridge
+
+
+
+

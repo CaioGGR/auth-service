@@ -1,0 +1,24 @@
+# Binários Compilados do Go
+auth-service
+auth-service.exe
+*.exe
+*.test
+*.out
+
+# Arquivos de Ambiente (Segurança)
+.env
+.env.local
+.env.*.local
+
+# IDEs e Ferramentas
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.swp
+
+# Sistemas Operacionais
+Thumbs.db
+.DS_Store

@@ -1,0 +1,7 @@
+# Utiliza a imagem leve do PostgreSQL baseada em Alpine
+FROM postgres:15-alpine
+
+# Copia o script de inicialização do banco para o diretório de entrypoint do Postgres.
+# Isso garante que a estrutura de tabelas seja criada no primeiro boot sem depender de bind mounts
+# (evitando problemas de montagem de arquivos/diretórios em sistemas virtuais ou discos de nuvem como Google Drive).
+COPY db/init.sql /docker-entrypoint-initdb.d/init.sql

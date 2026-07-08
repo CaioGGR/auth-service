@@ -1,0 +1,26 @@
+# Ignorar controle de versão
+.git
+.gitignore
+
+# Ignorar segredos e variáveis de ambiente locais
+.env
+.env.*
+
+# Ignorar configurações do Docker Compose e Dockerfiles
+docker-compose.yml
+Dockerfile
+Dockerfile.db
+.dockerignore
+
+# Ignorar binários locais compilados (para garantir compilação limpa dentro do Docker)
+auth-service
+auth-service.exe
+*.exe
+*.test
+*.out
+
+# Ignorar IDEs e temporários
+.vscode/
+.idea/
+Thumbs.db
+.DS_Store
