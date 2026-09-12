@@ -1,8 +1,8 @@
 ###### ==============================================================================
 ###### ESTÁGIO DE COMPILAÇÃO (BUILD STAGE)
 ###### ==============================================================================
-###### Utiliza a imagem oficial Go baseada em Alpine compatível com a versão do go.mod (1.21)
-FROM golang:1.21-alpine AS builder
+###### Utiliza a imagem oficial Go baseada em Alpine recente e segura (1.24)
+FROM golang:1.24-alpine AS builder
 
 ###### Instala ferramentas essenciais para compilação/dependências (git, ca-certificates, tzdata)
 RUN apk add --no-cache git ca-certificates tzdata
