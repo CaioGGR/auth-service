@@ -97,3 +97,24 @@ jobs:
         run: |
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
+
+      # --- Atualizar a Tag da Imagem no Repositório GitOps ---
+      - name: Atualizar Tag da Imagem no GitOps
+        env:
+          GITOPS_TOKEN: ${{ secrets.GITOPS_GITHUB_TOKEN }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+          # 1. Clona o repositório de manifestos usando o token
+          git clone https://x-access-token:${GITOPS_TOKEN}@github.com/CaioGGR/toggle-master-k8s-docker.git gitops-repo
+          cd gitops-repo
+
+          # 2. Atualiza a tag dentro de k8s/02-services.yaml
+          sed -i "s|togglemaster-auth:.*|togglemaster-auth:${IMAGE_TAG}|g" k8s/02-services.yaml
+
+          # 3. Comita e envia a nova tag para o GitHub
+          git add k8s/02-services.yaml
+          git commit -m "chore(ci): update auth-service image tag to ${IMAGE_TAG}" || exit 0
+          git push origin main
