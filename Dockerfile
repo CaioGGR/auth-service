@@ -9,6 +9,9 @@ RUN apk add --no-cache git ca-certificates tzdata
 
 WORKDIR /app
 
+###### Permite que o Go atualize automaticamente a toolchain caso alguma biblioteca do OpenTelemetry exija versão superior
+ENV GOTOOLCHAIN=auto
+
 ###### Otimização de Cache: Copia go.mod e o opcional go.sum (usando wildcard para evitar falha se go.sum não existir)
 COPY go.mod go.su[m]* ./
 
